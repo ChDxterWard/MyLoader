@@ -1,0 +1,45 @@
+services:
+  loader_frontend:
+    build:
+      context: .
+      dockerfile: frontend/dockerfile
+    container_name: loader_frontend_container
+    ports:
+      - 8081:8080
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    # NiceGUI benötigt oft diese Einstellungen:
+    stdin_open: true  # Für Interactive Mode
+    tty: true         # Für TTY
+    networks:
+      - app-network
+  loader_backend:
+    build:
+      context: .
+      dockerfile: backend/dockerfile
+    container_name: loader_backend_container
+    ports:
+      - 8082:8000
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    networks:
+      - app-network
+    volumes:
+      - ./out:/out
+  ftp-server:
+        container_name: ftp
+        environment:
+            - FTP_PASS=${FTP_PASS}
+            - FTP_USER=${FTP_USER}
+        image: garethflowers/ftp-server
+        ports:
+            - "20-21:20-21/tcp"
+            - "40000-40009:40000-40009/tcp"
+        volumes:
+            - "./out:/home/${FTP_USER}"
+
+networks:
+  app-network:
+    driver: bridge
