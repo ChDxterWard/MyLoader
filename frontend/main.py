@@ -5,8 +5,8 @@ from RequestDto import RequestDto
 
 
 
-def send(url, type):
-    requestDto = RequestDto(url, type)
+def send(url, type, title):
+    requestDto = RequestDto(url, type, title)
     try:
         response = requests.post(
                 'http://loader_backend:8000/load/',
@@ -16,7 +16,6 @@ def send(url, type):
         response.raise_for_status()
     except Exception as e:
         print(e)
-        #ui.notify(f"Error: {e}", type='negative')
 
 def create_loader_page():
     state = {'url_str': ''}
@@ -35,16 +34,19 @@ def create_loader_page():
         ui.element('div')
         
         ui.element('div')
-        ui.button('Load', on_click=lambda : send(state['url_str'], state['type']))
+        ui.button('Load', on_click=lambda : send(state['url_str'], state['type'], state['title']))
         ui.element('div')
-
-            
+        
+        ui.element('div')
+        ui.input('Title').bind_value(state, 'title')
+        ui.element('div')            
 
 if __name__ in {'__main__', '__mp_main__'}:
     create_loader_page()
     ui.run(
-        host='0.0.0.0',  # WICHTIG für Docker!
-        port=8080,       # Port aus Umgebungsvariable oder fest
-        reload=False,    # Für Production
-        show=False
-    )  
+        host='0.0.0.0',
+        port=8080,
+        reload=False,
+        show=False,
+        title='MyLoader'
+    )
